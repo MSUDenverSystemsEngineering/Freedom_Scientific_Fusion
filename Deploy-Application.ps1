@@ -170,10 +170,10 @@ Try {
 
 		## <Perform Post-Installation tasks here>
 		## Remvoe Desktop Shortcuts of Fusion 2018
-		Remove-File -Path "$env:Public\Desktop\FSReader 3.0.lnk" -ContinueOnError
-		Remove-File -Path "$env:Public\Desktop\Fusion 2018.lnk" -ContinueOnError
-		Remove-File -Path "$env:Public\Desktop\JAWS 2018.lnk" -ContinueOnError
-		Remove-File -Path "$env:Public\Desktop\ZoomText 2018.lnk" -ContinueOnError
+		Remove-File -Path "$env:Public\Desktop\FSReader 3.0.lnk"
+		Remove-File -Path "$env:Public\Desktop\Fusion 2018.lnk"
+		Remove-File -Path "$env:Public\Desktop\JAWS 2018.lnk"
+		Remove-File -Path "$env:Public\Desktop\ZoomText 2018.lnk"
 		## Set LSHOST Environment Variable for Network Licensing
 		[Environment]::SetEnvironmentVariable('LSHOST', 'VMWAS22', 'Machine')
 		## Prompt for restart
