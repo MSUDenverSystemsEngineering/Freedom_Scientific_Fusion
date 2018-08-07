@@ -177,7 +177,7 @@ Try {
 		## Set LSHOST Environment Variable for Network Licensing
 		[Environment]::SetEnvironmentVariable('LSHOST', 'VMWAS22', 'Machine')
 		## Prompt SCCM to restart via passthru
-		If (($exitCode.ExitCode -eq "0") {
+		If ($exitCode.ExitCode -eq "0") {
 			$mainExitCode = "3010"
 		}
 
@@ -239,7 +239,7 @@ Try {
 
 		## <Perform Post-Uninstallation tasks here>
 		## Prompt SCCM to restart via passthru
-		If (($exitCode.ExitCode -eq "0") {
+		If ($exitCode.ExitCode -eq "0") {
 			$mainExitCode = "3010"
 		}
 
