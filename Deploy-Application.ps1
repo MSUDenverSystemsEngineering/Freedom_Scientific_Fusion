@@ -176,8 +176,10 @@ Try {
 		Remove-File -Path "$env:Public\Desktop\ZoomText 2018.lnk"
 		## Set LSHOST Environment Variable for Network Licensing
 		[Environment]::SetEnvironmentVariable('LSHOST', 'VMWAS22', 'Machine')
-		## Prompt for restart
-		##Show-InstallationRestartPrompt -Countdownseconds 60 -CountdownNoHideSeconds 60
+		## Prompt SCCM to restart via passthru
+		If (($exitCode.ExitCode -eq "0") {
+			$mainExitCode = "3010"
+		}
 
 		## Display a message at the end of the install
 		If (-not $useDefaultMsi) {
@@ -236,8 +238,10 @@ Try {
 		[string]$installPhase = 'Post-Uninstallation'
 
 		## <Perform Post-Uninstallation tasks here>
-		## Prompt for restart
-		##Show-InstallationRestartPrompt -Countdownseconds 60 -CountdownNoHideSeconds 60
+		## Prompt SCCM to restart via passthru
+		If (($exitCode.ExitCode -eq "0") {
+			$mainExitCode = "3010"
+		}
 
 	}
 
