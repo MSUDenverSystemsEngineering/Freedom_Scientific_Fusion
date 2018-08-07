@@ -63,15 +63,15 @@ Try {
 	##* VARIABLE DECLARATION
 	##*===============================================
 	## Variables: Application
-	[string]$appVendor = ''
-	[string]$appName = ''
-	[string]$appVersion = ''
-	[string]$appArch = ''
+	[string]$appVendor = 'Freedom Scientific'
+	[string]$appName = 'Fusion'
+	[string]$appVersion = '2018'
+	[string]$appArch = 'x86'
 	[string]$appLang = 'EN'
 	[string]$appRevision = '01'
 	[string]$appScriptVersion = '3.7.0.1'
-	[string]$appScriptDate = '03/22/2018'
-	[string]$appScriptAuthor = '<author name>'
+	[string]$appScriptDate = '08/07/2018'
+	[string]$appScriptAuthor = 'Metropolitan State University of Denver'
 	##*===============================================
 	## Variables: Install Titles (Only set here to override defaults set by the toolkit)
 	[string]$installName = ''
@@ -118,13 +118,29 @@ Try {
 		##*===============================================
 		[string]$installPhase = 'Pre-Installation'
 
-		## Show Welcome Message, close Internet Explorer if needed, verify there is enough disk space to complete the install, and persist the prompt
-		Show-InstallationWelcome -CloseApps 'iexplore' -CheckDiskSpace -PersistPrompt
+		## Show Welcome Message, close Fusion, ZoomText, JAWS if needed, verify there is enough disk space to complete the install, and persist the prompt
+		Show-InstallationWelcome -CloseApps 'aisquared.zoomtext.ui,jfw' -CheckDiskSpace -PersistPrompt
 
 		## Show Progress Message (with the default message)
 		Show-InstallationProgress
 
 		## <Perform Pre-Installation tasks here>
+		## Uninstall ZoomText 10.1 if exist
+		If (Test-Path "C:\Program Files (x86)\InstallShield Installation Information\{F7F20305-1476-4421-B909-BB5B90D1F222}\setup.exe") {
+			Execute-Process -Path "C:\Program Files (x86)\InstallShield Installation Information\{F7F20305-1476-4421-B909-BB5B90D1F222}\setup.exe" -Parameters "-runfromtemp -l0x0009 -ir -niuninst" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		}
+		## Uninstall JAWS 18 if exist
+		If (Test-Path "C:\Program Files\Freedom Scientific Installation Information\356DE2A8-01EB-464e-9C33-0EEA3F923000-18.0\UninstallJAWS.exe") {
+			Execute-Process -Path "C:\Program Files\Freedom Scientific Installation Information\356DE2A8-01EB-464e-9C33-0EEA3F923000-18.0\UninstallJAWS.exe" -Parameters "/type silentremoveshared" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		}
+		## Wait for JAWS 18 uninstallation to complete
+		Wait-Process -Name "UninstallJAWS.exe"
+		## Uninstall FSReader 3.0 if exist
+		If (Test-Path "C:\Program Files\Freedom Scientific\FSReader\3.0\UninstallFSReader.exe") {
+			Execute-Process -Path "C:\Program Files\Freedom Scientific\FSReader\3.0\UninstallFSReader.exe" -Parameters "/type silent" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		}
+		## Wait for FSReader 3.0 uninstallation to complete
+		Wait-Process -Name "UninstallFSReader.exe"
 
 
 		##*===============================================
@@ -139,7 +155,13 @@ Try {
 		}
 
 		## <Perform Installation tasks here>
-
+		## Install Fusion 2018 silently
+		$exitCode = Execute-Process -Path "$dirFiles\ZF2018.1807.4.400-enu.exe" -Parameters "/Type Silent" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
+		}
+		## Wait for Fusion 2018 installation to complete
+		Wait-Process -Name "ZF2018.1807.4.400-enu.exe"
 
 		##*===============================================
 		##* POST-INSTALLATION
@@ -147,6 +169,15 @@ Try {
 		[string]$installPhase = 'Post-Installation'
 
 		## <Perform Post-Installation tasks here>
+		## Remvoe Desktop Shortcuts of Fusion 2018
+		Remove-File -Path "$env:Public\Desktop\FSReader 3.0.lnk" -ContinueOnError
+		Remove-File -Path "$env:Public\Desktop\Fusion 2018.lnk" -ContinueOnError
+		Remove-File -Path "$env:Public\Desktop\JAWS 2018.lnk" -ContinueOnError
+		Remove-File -Path "$env:Public\Desktop\ZoomText 2018.lnk" -ContinueOnError
+		## Set LSHOST Environment Variable for Network Licensing
+		[Environment]::SetEnvironmentVariable('LSHOST', 'VMWAS22', 'Machine')
+		## Prompt for restart
+		Show-InstallationRestartPrompt -NoCountdown
 
 		## Display a message at the end of the install
 		If (-not $useDefaultMsi) {
@@ -160,14 +191,13 @@ Try {
 		##*===============================================
 		[string]$installPhase = 'Pre-Uninstallation'
 
-		## Show Welcome Message, close Internet Explorer with a 60 second countdown before automatically closing
-		Show-InstallationWelcome -CloseApps 'iexplore' -CloseAppsCountdown 60
+		## Show Welcome Message, close Fusion 2018, ZoomText, and JAWS with a 60 second countdown before automatically closing
+		Show-InstallationWelcome -CloseApps 'aisquared.zoomtext.ui,jfw' -CloseAppsCountdown 60
 
 		## Show Progress Message (with the default message)
 		Show-InstallationProgress
 
 		## <Perform Pre-Uninstallation tasks here>
-
 
 		##*===============================================
 		##* UNINSTALLATION
@@ -181,6 +211,23 @@ Try {
 		}
 
 		# <Perform Uninstallation tasks here>
+		## Uninstall Fusion 2018 and shared components
+		$exitCode = Execute-Process -Path "$dirFiles\ZF2018.1807.4.400-enu.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
+		}
+		## Wait for Fusion uinstallation to complete
+		Wait-Process -Name "ZF2018.1807.4.400-enu.exe"
+		## Uninstall Freedom Scientific JAWS Training Table Of Contents DAISY Files
+		$exitCode = Execute-MSI -Action 'Uninstall' -Path "{4B78A505-4DE7-4212-95C1-32138456D4D4}"
+    If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
+		}
+		## Uninstall Freedom Scientific FSReader 3.0
+		$exitCode = Execute-MSI -Action 'Uninstall' -Path "{771ACF6D-1A05-4195-9739-3EBBDE3A2AA3}"
+		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
+		}
 
 
 		##*===============================================
@@ -189,7 +236,8 @@ Try {
 		[string]$installPhase = 'Post-Uninstallation'
 
 		## <Perform Post-Uninstallation tasks here>
-
+		## Prompt for restart
+		Show-InstallationRestartPrompt -NoCountdown
 
 	}
 
