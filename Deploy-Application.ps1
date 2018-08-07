@@ -177,7 +177,7 @@ Try {
 		## Set LSHOST Environment Variable for Network Licensing
 		[Environment]::SetEnvironmentVariable('LSHOST', 'VMWAS22', 'Machine')
 		## Prompt for restart
-		Show-InstallationRestartPrompt -NoCountdown
+		Show-InstallationRestartPrompt -Countdownseconds 60 -CountdownNoHideSeconds 60
 
 		## Display a message at the end of the install
 		If (-not $useDefaultMsi) {
@@ -237,7 +237,7 @@ Try {
 
 		## <Perform Post-Uninstallation tasks here>
 		## Prompt for restart
-		Show-InstallationRestartPrompt -NoCountdown
+		Show-InstallationRestartPrompt -Countdownseconds 60 -CountdownNoHideSeconds 60
 
 	}
 
