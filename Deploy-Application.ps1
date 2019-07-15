@@ -73,7 +73,8 @@ Try {
 	[string]$appScriptDate = '07/14/2019'
 	[string]$appScriptAuthor = 'Metropolitan State University of Denver'
 	## Add new filename here:
-	[string]$fusionfile = 'ZF2019.1906.8.400-Offline.exe'
+	[string]$fusionfile = 'ZF2019.1906.8.400-Offline'
+	[string]$oldfusionfile = 'ZF2018.1807.4.400-enu'
 	##*===============================================
 	## Variables: Install Titles (Only set here to override defaults set by the toolkit)
 	[string]$installName = ''
@@ -130,12 +131,12 @@ Try {
 
 		## UNINSTALL FUSION 2018
 		If (Test-Path "C:\Program Files (x86)\Freedom Scientific\ZoomText\2018\zt.exe") {
-				$exitCode = Execute-Process -Path "$dirFiles\ZF2018.1807.4.400-enu" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+				$exitCode = Execute-Process -Path "$dirFiles\$oldfusionfile.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
 				If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 					$mainExitCode = $exitCode.ExitCode
 				}
 				## Wait for Fusion uinstallation to complete
-				Wait-Process -Name "ZF2018.1807.4.400-enu"
+				Wait-Process -Name "$oldfusionfile"
 				## Uninstall Freedom Scientific JAWS Training Table Of Contents DAISY Files
 				$exitCode = Execute-MSI -Action 'Uninstall' -Path "{4B78A505-4DE7-4212-95C1-32138456D4D4}"
 		    If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
@@ -181,7 +182,7 @@ Try {
 		## <Perform Installation tasks here>
 		## Install Fusion 2019 silently
 
-		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile" -Parameters "/Type Silent" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile.exe" -Parameters "/Type Silent" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
 		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 			$mainExitCode = $exitCode.ExitCode
 		}
@@ -240,7 +241,7 @@ Try {
 		# <Perform Uninstallation tasks here>
 
 		## Uninstall Fusion 2018 and shared components
-		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
 		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 			$mainExitCode = $exitCode.ExitCode
 		}
