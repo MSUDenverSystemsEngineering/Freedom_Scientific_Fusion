@@ -241,7 +241,7 @@ Try {
 		# <Perform Uninstallation tasks here>
 
 		## Uninstall Fusion 2018 and shared components
-		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -IgnoreExitCodes ‘-1073741819’ -PassThru -WaitForMsiExec
 		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 			$mainExitCode = $exitCode.ExitCode
 		}
