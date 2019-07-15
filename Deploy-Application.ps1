@@ -182,7 +182,7 @@ Try {
 		## <Perform Installation tasks here>
 		## Install Fusion 2019 silently
 
-		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile.exe" -Parameters "/Type Silent" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile.exe" -Parameters "/Type Silent" -WindowStyle "Hidden" -IgnoreExitCodes '-1073741819' -PassThru -WaitForMsiExec
 		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 			$mainExitCode = $exitCode.ExitCode
 		}
@@ -241,7 +241,7 @@ Try {
 		# <Perform Uninstallation tasks here>
 
 		## Uninstall Fusion 2018 and shared components
-		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -IgnoreExitCodes '-1073741819' -PassThru -WaitForMsiExec
+		$exitCode = Execute-Process -Path "$dirFiles\$fusionfile.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
 		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 			$mainExitCode = $exitCode.ExitCode
 		}
