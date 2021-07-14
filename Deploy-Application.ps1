@@ -120,29 +120,28 @@ Try {
 		##*===============================================
 		[string]$installPhase = 'Pre-Installation'
 
-		## Show Welcome Message, close Internet Explorer if required, verify there is enough disk space to complete the install, and persist the prompt
-		Show-InstallationWelcome -CloseApps 'iexplore' -CheckDiskSpace -PersistPrompt
+		## Show Welcome Message, close Fusion, ZoomText, JAWS if needed, verify there is enough disk space to complete the install, and persist the prompt
+		Show-InstallationWelcome -CloseApps 'aisquared.zoomtext.ui,jfw' -CheckDiskSpace -PersistPrompt
 
 		## Show Progress Message (with the default message)
 		Show-InstallationProgress
 
-		## <Perform Pre-Installation tasks here>
-		## Uninstall ZoomText 10.1 if exist
-		If (Test-Path "C:\Program Files (x86)\InstallShield Installation Information\{F7F20305-1476-4421-B909-BB5B90D1F222}\setup.exe") {
-			Execute-Process -Path "C:\Program Files (x86)\InstallShield Installation Information\{F7F20305-1476-4421-B909-BB5B90D1F222}\setup.exe" -Parameters "-runfromtemp -l0x0009 -ir -niuninst" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		$exitCode = Execute-Process -Path "$dirFiles\ZF2018.1807.4.400-enu.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
 		}
-		## Uninstall JAWS 18 if exist
-		If (Test-Path "C:\Program Files\Freedom Scientific Installation Information\356DE2A8-01EB-464e-9C33-0EEA3F923000-18.0\UninstallJAWS.exe") {
-			Execute-Process -Path "C:\Program Files\Freedom Scientific Installation Information\356DE2A8-01EB-464e-9C33-0EEA3F923000-18.0\UninstallJAWS.exe" -Parameters "/type silentremoveshared" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		## Wait for Fusion uinstallation to complete
+		Wait-Process -Name "ZF2018.1807.4.400-enu.exe"
+		## Uninstall Freedom Scientific JAWS Training Table Of Contents DAISY Files
+		$exitCode = Execute-MSI -Action 'Uninstall' -Path "{4B78A505-4DE7-4212-95C1-32138456D4D4}"
+    If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
 		}
-		## Wait for JAWS 18 uninstallation to complete
-		Wait-Process -Name "UninstallJAWS.exe"
-		## Uninstall FSReader 3.0 if exist
-		If (Test-Path "C:\Program Files\Freedom Scientific\FSReader\3.0\UninstallFSReader.exe") {
-			Execute-Process -Path "C:\Program Files\Freedom Scientific\FSReader\3.0\UninstallFSReader.exe" -Parameters "/type silent" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		## Uninstall Freedom Scientific FSReader 3.0
+		$exitCode = Execute-MSI -Action 'Uninstall' -Path "{771ACF6D-1A05-4195-9739-3EBBDE3A2AA3}"
+		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
 		}
-		## Wait for FSReader 3.0 uninstallation to complete
-		Wait-Process -Name "UninstallFSReader.exe"
 
 		##*===============================================
 		##* INSTALLATION
@@ -182,6 +181,7 @@ Try {
 			$mainExitCode = "3010"
 		}
 
+		
 		## Display a message at the end of the install
 		If (-not $useDefaultMsi) {}
 	}
@@ -218,7 +218,7 @@ Try {
 				If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 					$mainExitCode = $exitCode.ExitCode
 				}
-				## Wait for Fusion uinstallation to complete
+				## Wait for Fusion uninstallation to complete
 				Wait-Process -Name "F2021.2105.8.400.exe"
 				## Uninstall Freedom Scientific JAWS Training Table Of Contents DAISY Files
 				$exitCode = Execute-MSI -Action 'Uninstall' -Path "{4B78A505-4DE7-4212-95C1-32138456D4D4}"
@@ -292,8 +292,8 @@ Catch {
 # SIG # Begin signature block
 # MIIU9wYJKoZIhvcNAQcCoIIU6DCCFOQCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUhHj8xd+4iYWKQCVRUio4i3/+
-# FIegghHXMIIFbzCCBFegAwIBAgIQSPyTtGBVlI02p8mKidaUFjANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUQAAPuKo1DwPbj8COOuiOFpnG
+# yO+gghHXMIIFbzCCBFegAwIBAgIQSPyTtGBVlI02p8mKidaUFjANBgkqhkiG9w0B
 # AQwFADB7MQswCQYDVQQGEwJHQjEbMBkGA1UECAwSR3JlYXRlciBNYW5jaGVzdGVy
 # MRAwDgYDVQQHDAdTYWxmb3JkMRowGAYDVQQKDBFDb21vZG8gQ0EgTGltaXRlZDEh
 # MB8GA1UEAwwYQUFBIENlcnRpZmljYXRlIFNlcnZpY2VzMB4XDTIxMDUyNTAwMDAw
@@ -393,13 +393,13 @@ Catch {
 # ZSBTaWduaW5nIENBIFIzNgIRAKVN33D73PFMVIK48rFyyjEwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFDaBl32IO8RT0GW3pFLyIVftdlcCMA0GCSqGSIb3DQEBAQUABIIBgAbIMZ1H
-# kGR0F0NIPzcA0G6FHGlilYnas39fqMWXRuyEOeEIGqYNcwLSbxtyaFZKAl4dfowM
-# I+AE8nWMrQT7Mx2HagTWXi5yO9nu9gw44wk2m5uHDHx+jYN1oftwy+UfkS0uI8Xi
-# xllye8ry2AxNS7+XbToB5TVvL2jBJPPfUd80rUGLV2Te2rCQWJnEFTDFEQ1opmkR
-# 2UqpHQLD6Z5gC9A8hzeRnB5DBl9rUMYr9AGKC24IqrnEeqEPVPMXmou1fyIU8vgw
-# IbwG5ZKlulEtk3x0uw/6zERjnF65vUwYm4yrpvGVhgPXPMPApnQFkjs0p4nB1cEV
-# 1wP8H0OHL7tYW9V54QmkmzNmSewxINuPRHdAzF9BgtliMweZWLsvjbfEvtJMN20Z
-# 3l+YsYOLQQIL9JeR9YwIYx8BgCatgf1eYhTdFbq/mreVJxSg+ZJZ8VgC88rg9fK3
-# 7gGcwOFLpGnwVV81VZYoZkbGlAWMi8en7SgTNMUSWJK0aq3RGWjOucrPdw==
+# MRYEFCvmm5wF52YCOx3qkdDcTDx6ODCEMA0GCSqGSIb3DQEBAQUABIIBgAbSWULg
+# uIB9NxcOiH5Pz9iH1xEZaukMm10U+rk054O20qCyrVKJfnwDFqBUjeeyjAWcMzuq
+# uexzpMHBgNmQLNFgbE1aiWiq52C3FJhVjK3+FGUOp6C9cBuyVO4Mqq2v7O98ufpr
+# Vr7VtgbhtzQWorJBcrVdf+l6/HcjxSZRlPzNelHxVskwqtSpoF0J69z1iOUe7yFy
+# gCTcz58b28Qp7ZZJ8cp6Zvx/kQxt0TKC9kHHLORK8gypJZQ1Lx6aNkDilEey4vy6
+# PIHlYtw8GfO4E4ECG6QCVurU+8iEIBeLfk9uBD3FukMM0CpdnQBWAsQ1pCSaToIj
+# A849roWvo30XwY4skV66NMOgGOilb8wD+5n0Bz7d32JGSMgVuGER3gPPtTpfmnM0
+# LKhi4xkPmEk4EH2QDzLMyHi6DSXrKjs3xhkgzoC3hT/+C5Fax/yYD7phZQoCdFie
+# bsaNfpCUr0yMzOQnd7JVkmfT+hHTNLMYP+anTe+YHksM1hUXQBCAUcCOMA==
 # SIG # End signature block
