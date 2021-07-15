@@ -180,7 +180,7 @@ Try {
 			$mainExitCode = "3010"
 		}
 
-		
+
 		## Display a message at the end of the install
 		If (-not $useDefaultMsi) {}
 		}
