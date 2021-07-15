@@ -134,7 +134,7 @@ Try {
 		Wait-Process -Name "ZF2018.1807.4.400-enu.exe"
 		## Uninstall Freedom Scientific JAWS Training Table Of Contents DAISY Files
 		$exitCode = Execute-MSI -Action 'Uninstall' -Path "{4B78A505-4DE7-4212-95C1-32138456D4D4}"
-    If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+	If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 			$mainExitCode = $exitCode.ExitCode
 		}
 		## Uninstall Freedom Scientific FSReader 3.0
@@ -162,7 +162,6 @@ Try {
 		}
 		Wait-Process -Name "F2021.2105.8.400.exe"
 
-
 		##*===============================================
 		##* POST-INSTALLATION
 		##*===============================================
@@ -184,7 +183,7 @@ Try {
 		
 		## Display a message at the end of the install
 		If (-not $useDefaultMsi) {}
-	}
+		}
 	ElseIf ($deploymentType -ieq 'Uninstall')
 	{
 		##*===============================================
@@ -213,23 +212,23 @@ Try {
 		}
 
 		# <Perform Uninstallation tasks here>
-				## Uninstall Fusion 2021 and shared components
-				$exitCode = Execute-Process -Path "$dirFiles\F2021.2105.8.400.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
-				If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
-					$mainExitCode = $exitCode.ExitCode
-				}
-				## Wait for Fusion uninstallation to complete
-				Wait-Process -Name "F2021.2105.8.400.exe"
-				## Uninstall Freedom Scientific JAWS Training Table Of Contents DAISY Files
-				$exitCode = Execute-MSI -Action 'Uninstall' -Path "{4B78A505-4DE7-4212-95C1-32138456D4D4}"
-			If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
-					$mainExitCode = $exitCode.ExitCode
-				}
-				## Uninstall Freedom Scientific FSReader 3.0
-				$exitCode = Execute-MSI -Action 'Uninstall' -Path "{771ACF6D-1A05-4195-9739-3EBBDE3A2AA3}"
-				If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
-					$mainExitCode = $exitCode.ExitCode
-				}
+		## Uninstall Fusion 2021 and shared components
+		$exitCode = Execute-Process -Path "$dirFiles\F2021.2105.8.400.exe" -Parameters "/Type SilentSharedUninstall" -WindowStyle "Hidden" -PassThru -WaitForMsiExec
+		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
+		}
+		## Wait for Fusion uninstallation to complete
+		Wait-Process -Name "F2021.2105.8.400.exe"
+		## Uninstall Freedom Scientific JAWS Training Table Of Contents DAISY Files
+		$exitCode = Execute-MSI -Action 'Uninstall' -Path "{4B78A505-4DE7-4212-95C1-32138456D4D4}"
+	If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
+		}
+		## Uninstall Freedom Scientific FSReader 3.0
+		$exitCode = Execute-MSI -Action 'Uninstall' -Path "{771ACF6D-1A05-4195-9739-3EBBDE3A2AA3}"
+		If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+			$mainExitCode = $exitCode.ExitCode
+		}
 
 
 		##*===============================================
@@ -238,7 +237,10 @@ Try {
 		[string]$installPhase = 'Post-Uninstallation'
 
 		## <Perform Post-Uninstallation tasks here>
-
+					## Prompt SCCM to restart via passthru
+		If ($exitCode.ExitCode -eq "0") {
+			$mainExitCode = "3010"
+		}
 
 	}
 	ElseIf ($deploymentType -ieq 'Repair')
