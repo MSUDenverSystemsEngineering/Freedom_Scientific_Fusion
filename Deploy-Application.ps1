@@ -134,7 +134,7 @@ Try {
 		Wait-Process -Name "ZF2018.1807.4.400-enu.exe"
 		## Uninstall Freedom Scientific JAWS Training Table Of Contents DAISY Files
 		$exitCode = Execute-MSI -Action 'Uninstall' -Path "{4B78A505-4DE7-4212-95C1-32138456D4D4}"
-	If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
+    If (($exitCode.ExitCode -ne "0") -and ($mainExitCode -ne "3010")) {
 			$mainExitCode = $exitCode.ExitCode
 		}
 		## Uninstall Freedom Scientific FSReader 3.0
@@ -208,7 +208,7 @@ Try {
 
 		## Handle Zero-Config MSI Uninstallations
 		If ($useDefaultMsi) {
-			[hashtable]$ExecuteDefaultMSISplat = @{ Action = 'Uninstall'; Path = $defaultMsiFile }; If ($defaultMstFile) { $ExecuteDefaultMSISplat.Add('Transform', $defaultMstFile) }
+			[hashtable]$ExecuteDefaultMSISplat =  @{ Action = 'Uninstall'; Path = $defaultMsiFile }; If ($defaultMstFile) { $ExecuteDefaultMSISplat.Add('Transform', $defaultMstFile) }
 			Execute-MSI @ExecuteDefaultMSISplat
 		}
 
